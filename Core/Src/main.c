@@ -22,8 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "usbd_cdc_if.h"
-#include "string.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -367,7 +366,7 @@ void user_cmd(uint8_t* order)
 
 	case 's':
 		printf("Sending data over USB\r\n");
-		CDC_Transmit_FS((uint8_t*)data, strlen(data));
+		//CDC_Transmit_FS((uint8_t*)data, strlen(data));
 		break;
 	default:
 		printf("Not a defined command\r\n");
