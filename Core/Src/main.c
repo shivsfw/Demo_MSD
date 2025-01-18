@@ -22,7 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "usbd_cdc_if.h"
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,7 +64,7 @@ void user_cmd(uint8_t *);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+const char *data = "Hello from the Matrix\r\n";
 /* USER CODE END 0 */
 
 /**
@@ -364,6 +365,10 @@ void user_cmd(uint8_t* order)
 		printf("Logial Block Size %lu\r\n", cardinfo.LogBlockSize);
 		break;
 
+	case 's':
+		printf("Sending data over USB\r\n");
+		CDC_Transmit_FS((uint8_t*)data, strlen(data));
+		break;
 	default:
 		printf("Not a defined command\r\n");
 		break;
