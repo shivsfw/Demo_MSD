@@ -31,7 +31,8 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+extern HAL_SD_CardInfoTypeDef cardinfo;
+extern SD_HandleTypeDef hsd1;
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -191,8 +192,12 @@ int8_t STORAGE_Init_FS(uint8_t lun)
 int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_size)
 {
   /* USER CODE BEGIN 3 */
-  *block_num  = STORAGE_BLK_NBR;
-  *block_size = STORAGE_BLK_SIZ;
+
+	if(HAL_SD_GetCardInfo(&hsd1, &cardinfo) != HAL_OK)	{
+		return (USBD_FAIL);
+	}
+  *block_num  = cardinfo.BlockNbr  - 1;
+  *block_size = (uint16_t)cardinfo.BlockSize;
   return (USBD_OK);
   /* USER CODE END 3 */
 }
@@ -229,6 +234,18 @@ int8_t STORAGE_IsWriteProtected_FS(uint8_t lun)
 int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
   /* USER CODE BEGIN 6 */
+	if(HAL_SD_ReadBlocks(&hsd1, buf, blk_addr, 1, HAL_MAX_DELAY) != HAL_OK)
+	{
+		return (USBD_FAIL);
+	}
+
+	uint32_t timestart = HAL_GetTick();
+	while(HAL_SD_GetCardState(&hsd1) != HAL_SD_CARD_TRANSFER)
+	{
+		if((HAL_GetTick() - timestart) > 10000)	{
+			return (USBD_FAIL);
+		}
+	}
   return (USBD_OK);
   /* USER CODE END 6 */
 }
@@ -241,6 +258,18 @@ int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t bl
 int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
   /* USER CODE BEGIN 7 */
+	if(HAL_SD_WriteBlocks(&hsd1, buf, blk_addr, 1, HAL_MAX_DELAY) != HAL_OK)
+	{
+		return (USBD_FAIL);
+	}
+
+	uint32_t timestart = HAL_GetTick();
+	while(HAL_SD_GetCardState(&hsd1) != HAL_SD_CARD_TRANSFER)
+	{
+		if((HAL_GetTick() - timestart) > 10000)	{
+			return (USBD_FAIL);
+		}
+	}
   return (USBD_OK);
   /* USER CODE END 7 */
 }
